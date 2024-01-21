@@ -211,4 +211,11 @@ FROM
 
 -- COMMAND ----------
 
+SELECT
+  *
+FROM
+  website_pageviews
+
+-- COMMAND ----------
+
 
