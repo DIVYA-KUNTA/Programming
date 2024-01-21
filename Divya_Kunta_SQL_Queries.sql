@@ -1052,4 +1052,18 @@ GROUP BY
 
 -- COMMAND ----------
 
+SELECT 
+  *
+FROM
+  products
+
+-- COMMAND ----------
+
+SELECT 
+  *
+FROM
+  website_sessions
+
+-- COMMAND ----------
+
 
