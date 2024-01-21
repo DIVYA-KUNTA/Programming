@@ -9,13 +9,13 @@
 
 -- COMMAND ----------
 
-SELECT 
+SELECT
     utm_source,
     utm_campaign,
     http_referer,
     COUNT(DISTINCT website_session_id) AS sessions    
 FROM
-	website_sessions
+	main.default.website_sessions
  WHERE
 	created_at  < '2012-04-12'
 GROUP BY
@@ -1059,10 +1059,30 @@ FROM
 
 -- COMMAND ----------
 
-SELECT 
+SELECT
+  utm_source
+FROM
+  divya_kunta_aws_8912329879554895.default.website_sessions
+
+-- COMMAND ----------
+
+SELECT
   *
 FROM
-  website_sessions
+  main.default.website_sessions
+
+-- COMMAND ----------
+
+SELECT
+*
+FROM
+products
+
+-- COMMAND ----------
+
+SELECT 
+  website_session_id
+FROM website_sessions
 
 -- COMMAND ----------
 
