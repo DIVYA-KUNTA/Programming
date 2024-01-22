@@ -46,4 +46,38 @@ ORDER BY
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC # Analyzing Product Lanches
+-- MAGIC ## Monthly trend for order volume,overall conv rate,revenue per session & breakdown of sales by product
+
+-- COMMAND ----------
+
+SELECT
+  year(website_sessions.created_at) AS year,
+  month(website_sessions.created_at) AS month,
+  count(DISTINCT orders.order_id) AS sales,
+  round(count(DISTINCT orders.order_id)/count(DISTINCT website_sessions.website_session_id),2) AS conv_rate,
+  round(sum(price_usd),2) AS revenue,
+  count(DISTINCT website_sessions.website_session_id) AS sessions,
+  round(sum(price_usd)/count(DISTINCT website_sessions.website_session_id),2) AS revenue_per_sessions,
+  count(DISTINCT CASE WHEN primary_product_id = 1 THEN order_id ELSE NULL END) AS product_one_sales,
+  count(DISTINCT CASE WHEN primary_product_id = 2 THEN order_id ELSE NULL END) AS product_two_sales 
+FROM
+  website_sessions
+LEFT JOIN
+  orders
+  ON website_sessions.website_session_id = orders.website_session_id
+WHERE
+  website_sessions.created_at >'2012-04-01'
+  AND website_sessions.created_at < '2013-04-05'
+GROUP BY
+  year(website_sessions.created_at),
+  month(website_sessions.created_at)
+ORDER BY
+  year(website_sessions.created_at),
+  month(website_sessions.created_at)
+
+
+-- COMMAND ----------
+
 
