@@ -103,4 +103,93 @@ GROUP BY
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC # Assignment_1
+-- MAGIC ## product level website
+
+-- COMMAND ----------
+
+SELECT
+  *
+FROM
+  website_pageviews
+WHERE 
+  pageview_url = '/products'
+
+
+-- COMMAND ----------
+
+SELECT
+  *
+FROM
+  website_pageviews
+WHERE
+  website_session_id = 6
+
+-- COMMAND ----------
+
+WITH T1 AS 
+(
+  SELECT
+    website_session_id,
+    website_pageview_id AS product_pageview_id
+  FROM
+    website_pageviews
+  WHERE
+    pageview_url = '/products'
+  ORDER BY
+    website_session_id ASC
+),
+
+T2 AS
+(
+  SELECT
+    website_session_id,
+    max(website_pageview_id) AS max_pageview_id
+  FROM
+    website_pageviews
+  WHERE
+    created_at BETWEEN '2013-01-06' AND '2013-04-06'
+  GROUP BY
+    website_session_id
+),
+
+T3 AS
+(
+  SELECT
+    T2.website_session_id,
+    orders.primary_product_id,
+    T2.max_pageview_id,
+    T1.product_pageview_id,
+    CASE WHEN max_pageview_id > product_pageview_id THEN 'yes' ELSE NULL END AS clickthrough
+  FROM T2
+    LEFT JOIN T1
+      ON T2.website_session_id = T1.website_session_id  
+    LEFT JOIN orders
+    ON T2.website_session_id = orders.website_session_id  
+  WHERE
+    product_pageview_id IS NOT NULL
+  ORDER BY
+    T2.website_session_id
+)
+
+SELECT
+  primary_product_id,
+  count(DISTINCT website_session_id) AS sessions,
+  COUNT(CASE WHEN clickthrough = 'yes' THEN 1 END) AS clickedthrough_product,
+  round(COUNT(CASE WHEN clickthrough = 'yes' THEN 1 END)/count(DISTINCT website_session_id),2) AS clickthrough_rate 
+FROM T3
+GROUP BY
+  primary_product_id
+
+
+-- COMMAND ----------
+
+SELECT
+  *
+FROM
+  orders
+
+-- COMMAND ----------
+
 
