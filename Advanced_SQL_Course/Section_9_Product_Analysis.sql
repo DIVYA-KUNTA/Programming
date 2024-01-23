@@ -80,4 +80,27 @@ ORDER BY
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC # Product Level Website Analysis
+
+-- COMMAND ----------
+
+SELECT
+  pageview_url,
+  COUNT(DISTINCT website_pageviews.website_session_id) AS sessions,
+  COUNT(DISTINCT orders.order_id) AS orders,
+  round(COUNT(DISTINCT orders.order_id)/COUNT(DISTINCT website_pageviews.website_session_id),2) AS viewed_products_to_orders
+FROM
+  website_pageviews
+LEFT JOIN
+  orders
+  ON website_pageviews.website_session_id = orders.website_session_id
+WHERE 
+  website_pageviews.created_at BETWEEN '2013-02-01' AND '2013-03-01'
+  AND pageview_url IN ('/the-original-mr-fuzzy','/the-forever-love-bear')
+GROUP BY
+  pageview_url
+
+-- COMMAND ----------
+
 
