@@ -192,4 +192,73 @@ FROM
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC # Product Level Website Analysis-Solution 
+
+-- COMMAND ----------
+
+WITH  product_pageviews AS 
+(
+SELECT
+  website_session_id,
+  website_pageview_id,
+  created_at,
+  CASE
+      WHEN created_at <'2013-01-01' THEN 'A. pre_product_2'
+      WHEN created_at >= '2013-01-01' THEN 'B. post_product_2'
+      ELSE 'uh oh.....check logic'
+  END AS time_period
+FROM website_pageviews
+WHERE
+  created_at < '2013-01-01'
+  AND created_at > '2012-10-06'
+  AND pageview_url = '/products'
+),
+
+sessions_w_next_pageview_id AS 
+(
+SELECT
+  product_pageviews.time_period,
+  product_pageviews.website_session_id,
+  MIN(website_pageviews.website_pageview_id) AS min_next_pageview_id
+FROM product_pageviews
+LEFT JOIN website_pageviews
+  ON product_pageviews.website_session_id = website_pageviews.website_session_id
+  AND website_pageviews.website_pageview_id > product_pageviews.website_pageview_id
+GROUP BY
+  product_pageviews.time_period,
+  product_pageviews.website_session_id
+  
+),
+
+sesions_w_next_pageview_url AS
+(
+SELECT
+  sessions_w_next_pageview_id.time_period,
+  sessions_w_next_pageview_id.website_session_id,
+  website_pageviews.pageview_url
+FROM sessions_w_next_pageview_id
+LEFT JOIN website_pageviews
+  ON sessions_w_next_pageview_id.min_next_pageview_id = website_pageviews.website_pageview_id 
+)
+
+
+-- SELECT
+--   time_period,
+--   count(DISTINCT website_session_id) AS sessions,
+--   count(DISTINCT CASE WHEN pageview_url IS NOT NULL THEN website_session_id ELSE NULL END) AS w_next_page,
+--   count(DISTINCT CASE WHEN pageview_url IS NOT NULL THEN website_session_id ELSE NULL END)/ Count(DISTINCT website_session_id) AS pct_w_next_page,
+--   count(DISTINCT CASE WHEN pageview_url = '/the-original-mr-fuzzy' THEN website_session_id ELSE NULL END) AS to_mrfuzzy,
+--   count(DISTINCT CASE WHEN pageview_url = '/the-original-mr-fuzzy' THEN website_session_id ELSE NULL END)/count(DISTINCT website_session_id) AS pct_to_mr_fuzzy,
+--   count(DISTINCT CASE WHEN pageview_url = '/the-forever-love-bear' THEN website_session_id ELSE NULL END) AS to_lovebear,
+--   count(DISTINCT CASE WHEN pageview_url = '/the-forever-love-bear' THEN website_session_id ELSE NULL END)/count(DISTINCT website_session_id) AS pct_to_lovebear
+-- FROM sesions_w_next_pageview_url
+-- GROUP BY
+--   time_period
+
+SELECT * FROM sesions_w_next_pageview_url
+
+
+-- COMMAND ----------
+
 
