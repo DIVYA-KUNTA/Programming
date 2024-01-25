@@ -23,6 +23,106 @@ WHERE
 
 -- COMMAND ----------
 
+SELECT 
+    YEAR(website_sessions.created_at) AS year,
+    MONTH(website_sessions.created_at) AS  month,
+    COUNT(DISTINCT website_sessions.website_session_id) AS sessions,
+    COUNT(DISTINCT orders.order_id) AS orders,
+    COUNT(DISTINCT orders.order_id)/COUNT(DISTINCT website_sessions.website_session_id) AS conversation_rate
+FROM
+	website_sessions
+LEFT JOIN 
+	orders
+    ON website_sessions.website_session_id = orders.website_session_id
+WHERE
+	website_sessions.created_at < '2012-11-27'
+    AND website_sessions.utm_source = 'gsearch'
+GROUP BY
+	YEAR(website_sessions.created_at),
+	MONTH(website_sessions.created_at);
+    
+    
+SELECT
+	  YEAR(website_sessions.created_at) AS year,
+    MONTH(website_sessions.created_at) AS month,
+	  COUNT(CASE WHEN utm_campaign = 'nonbrand' THEN website_sessions.website_session_id ELSE NULL END) AS nonbrand_sessions,
+    COUNT(CASE WHEN utm_campaign = 'nonbrand' THEN orders.order_id ELSE NULL END) AS nonbrand_orders,
+    COUNT(CASE WHEN utm_campaign = 'brand' THEN website_sessions.website_session_id ELSE NULL END) AS brand_sessions,
+    COUNT(CASE WHEN utm_campaign = 'brand' THEN orders.order_id ELSE NULL END) AS brand_orders
+FROM
+	website_sessions
+LEFT JOIN
+	orders
+    ON website_sessions.website_session_id = orders.website_session_id
+WHERE
+	website_sessions.created_at < '2012-11-27'
+    AND website_sessions.utm_source = 'gsearch'
+GROUP BY
+	  YEAR(website_sessions.created_at),
+    MONTH(website_sessions.created_at);
+    
+SELECT 
+	  YEAR(website_sessions.created_at) AS year,
+    MONTH(website_sessions.created_at) AS month,
+    COUNT(CASE WHEN device_type = 'desktop' THEN website_sessions.website_session_id ELSE NULL END) AS desktop_sessions,
+    COUNT(CASE WHEN device_type = 'desktop' THEN orders.order_id ELSE NULL END) AS desktop_orders,
+    COUNT(CASE WHEN device_type = 'mobile' THEN website_sessions.website_session_id ELSE NULL END) AS mobile_sessions,
+    COUNT(CASE WHEN device_type = 'mobile' THEN orders.order_id ELSE NULL END) AS mobile_orders
+FROM
+	website_sessions
+LEFT JOIN
+	orders
+    ON website_sessions.website_session_id = orders.website_session_id
+WHERE
+	website_sessions.created_at < '2012-11-27'
+    AND website_sessions.utm_source = 'gsearch'
+    AND website_sessions.utm_campaign = 'nonbrand'
+GROUP BY
+	YEAR(website_sessions.created_at),
+  MONTH(website_sessions.created_at) ;
+
+SELECT 
+  YEAR(website_sessions.created_at) AS year,
+  month(website_sessions.created_at) AS month,
+  COUNT(DISTINCT CASE WHEN utm_source = 'gsearch' THEN website_sessions.website_session_id ELSE NULL END) AS gsearch_sessions,
+  COUNT(DISTINCT CASE WHEN utm_source = 'bsearch' THEN website_sessions.website_session_id ELSE NULL END) AS bsearch_sessions,
+  COUNT(DISTINCT CASE WHEN utm_source IS NULL AND http_referer IS NOT NULL THEN website_sessions.website_session_id ELSE NULL END) AS organic_sessions,
+  COUNT(DISTINCT CASE WHEN utm_source IS NULL AND http_referer IS NULL THEN website_sessions.website_session_id ELSE NULL END) AS direct_type_in_sessions
+FROM
+	website_sessions
+LEFT JOIN
+	orders
+    ON website_sessions.website_session_id = orders.website_session_id
+WHERE
+	website_sessions.created_at < '2012-11-27'
+GROUP BY 
+	YEAR(website_sessions.created_at),
+    month(website_sessions.created_at);
+    
+SELECT
+	  YEAR(website_sessions.created_at) AS year,
+    MONTH(website_sessions.created_at) AS month,
+    COUNT(website_sessions.website_session_id) AS sessions,
+    COUNT(orders.order_id) AS orders,
+	  COUNT(orders.order_id)/COUNT(website_sessions.website_session_id) AS conversation_rate
+FROM
+	website_sessions
+LEFT JOIN
+	orders
+    ON website_sessions.website_session_id = orders.website_session_id
+WHERE
+	website_sessions.created_at < '2012-11-27' 
+GROUP BY
+	  YEAR(website_sessions.created_at),
+    MONTH(website_sessions.created_at);
+-- HAVING	
+--     website_sessions.created_at BETWEEN '2012-11-27' AND '2013-07-27'
+
+-- SELECT * FROM orders
+-- WHERE items_purchased > 1
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC # Analyzing Channel Portfolios
 
