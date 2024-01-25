@@ -1086,9 +1086,4 @@ FROM website_sessions
 
 -- COMMAND ----------
 
--- MAGIC %md
--- MAGIC # Test
-
--- COMMAND ----------
-
 
